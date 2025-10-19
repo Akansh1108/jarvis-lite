@@ -68,8 +68,8 @@
         <!-- Magic-link sign-in -->
         <div style="display:flex;gap:8px;margin:10px 0;align-items:center">
           <input id="email" placeholder="Enter email for magic link" />
-          <button class="secondary" id="signinBtn">Sign in</button>
-          <button class="secondary" id="signoutBtn" title="Sign out">Sign out</button>
+          <button class="secondary" onclick="window.jarvisSignIn()">Sign in</button>
+          <button class="secondary" onclick="window.jarvisSignOut()" title="Sign out">Sign out</button>
           <span id="authStatus" class="small"></span>
         </div>
 
@@ -214,7 +214,7 @@
         const n=21; const cell=Math.floor(W/n);
         for(let y=0;y<n;y++){ for(let x=0;x<n;x++){
           const v = ((x*31 + y*17 + seed)%7)<3; if(v) ctx.fillRect(x*cell, y*cell, cell-1, cell-1);
-        }}  // finders
+        }}  // finder patterns
         ctx.fillStyle='#fff'; ctx.fillRect(0,0,cell*7,cell*7); ctx.fillRect((n-7)*cell,0,cell*7,cell*7); ctx.fillRect(0,(n-7)*cell,cell*7,cell*7);
         ctx.fillStyle='#000'; ctx.fillRect(cell,cell,cell*5,cell*5); ctx.clearRect(cell*2,cell*2,cell*3,cell*3);
         ctx.fillRect((n-6)*cell,cell,cell*5,cell*5); ctx.clearRect((n-5)*cell+cell,(cell*2),cell*3,cell*3);
@@ -232,8 +232,7 @@
 
       if(low.startsWith('add task ')){
         const v = s.slice(9).trim();
-        addTaskSmart(v);
-        return;
+        addTaskSmart(v); return;
       }
       if(low.startsWith('create qr for ')){
         const v = s.slice('create qr for '.length).trim(); $('#qrText').value=v; makeQR(v); out.textContent = `QR created for: ${v}`; return;
@@ -242,8 +241,7 @@
         const name = s.split('for ')[1]||'you';
         const msg = `Wishing you boundless light, health, and momentum. ${name}, may your next 365 days glow with wins.`;
         drawWishCard(msg); out.textContent = `Wish card generated for ${name}. Click ‘Save Card’.`; speak(`Happy Diwali, ${name}!`);
-        saveCurrentWish(name, msg);
-        return;
+        saveCurrentWish(name, msg); return;
       }
       if(low === 'clear canvas'){ clearCanvas(); out.textContent = 'Canvas cleared.'; return; }
 
@@ -309,48 +307,59 @@
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-    // 🔁 Replace these two placeholders with your real values
-    const SUPABASE_URL  = 'SUPABASE_URL_HERE';          // e.g. 'https://xxxx.supabase.co'
-    const SUPABASE_ANON = 'SUPABASE_ANON_KEY_HERE';     // anon public key only
+    const SUPABASE_URL  = 'https://tqkixrssdwucgmgubbpm.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxa2l4cnNzZHd1Y2dtZ3ViYnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4NDkwMzgsImV4cCI6MjA3NjQyNTAzOH0.rcCNkdNhpvX34Dwg105QZ-BeaJ1oy2Wvp4MhY6akwcA';
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-    // Email magic link
-    async function signIn(email){
-      const { error } = await supabase.auth.signInWithOtp({ email });
-      alert(error ? error.message : 'Magic link sent! Check your inbox.');
-    }
-    async function signOut(){ await supabase.auth.signOut(); }
+    // Global sign-in / sign-out (used by inline onclick)
+    window.jarvisSignIn = async () => {
+      try {
+        const emailInput = document.getElementById('email');
+        const email = (emailInput?.value || '').trim();
+        if (!email) return alert('Enter an email first!');
+        const { error } = await supabase.auth.signInWithOtp({ email });
+        alert(error ? `Sign-in error: ${error.message}` : 'Magic link sent! Check your inbox.');
+      } catch (e) {
+        alert(`Sign-in failed: ${e.message}`);
+      }
+    };
+    window.jarvisSignOut = async () => {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        alert('Signed out successfully.');
+        updateStatus();
+      } catch (e) {
+        alert(`Sign-out failed: ${e.message}`);
+      }
+    };
 
-    // Helpers expose boolean success for our UI
-    window.jarvisSaveTask = async (text)=>{
-      const { data:{ user } } = await supabase.auth.getUser();
-      if(!user) return false;
-      const { error } = await supabase.from('tasks').insert({ user_id:user.id, text });
+    // Save helpers
+    window.jarvisSaveTask = async (text) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+      const { error } = await supabase.from('tasks').insert({ user_id: user.id, text });
+      if (error) console.error(error);
       return !error;
     };
-    window.jarvisSaveWish = async (name, message, image_data_url=null)=>{
-      const { data:{ user } } = await supabase.auth.getUser();
-      if(!user) return false;
-      const { error } = await supabase.from('wishes').insert({ user_id:user.id, name, message, image_data_url });
+    window.jarvisSaveWish = async (name, message, image_data_url = null) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+      const { error } = await supabase.from('wishes').insert({ user_id: user.id, name, message, image_data_url });
+      if (error) console.error(error);
       return !error;
     };
 
-    // Wire buttons & auth state label
-    const emailIn = document.getElementById('email');
-    const signinBtn = document.getElementById('signinBtn');
-    const signoutBtn = document.getElementById('signoutBtn');
-    const authStatus = document.getElementById('authStatus');
-
-    signinBtn.onclick = ()=> signIn(emailIn.value);
-    signoutBtn.onclick = ()=> signOut();
-
-    async function setStatus(){
-      const { data:{ user } } = await supabase.auth.getUser();
-      authStatus.textContent = user ? 'Signed in' : 'Not signed in';
+    // Auth status label
+    async function updateStatus() {
+      const s = document.getElementById('authStatus');
+      if (!s) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      s.textContent = user ? 'Signed in ✅' : 'Not signed in ❌';
     }
-    setStatus();
-    supabase.auth.onAuthStateChange(()=> setStatus());
+    updateStatus();
+    supabase.auth.onAuthStateChange(() => updateStatus());
   </script>
 </body>
 </html>
