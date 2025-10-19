@@ -1,321 +1,292 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jarvis Lite — Voice Studio (Diwali Edition)</title>
+  <title>Jarvis Lite — Voice Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
   <meta name="theme-color" content="#0b0f1a"/>
   <style>
     :root{
-      --bg: #070a12;
-      --ink:#c8d3f5; --muted:#8b9cc8;
-      --panel:#0b0f1a; --stroke: rgba(255,255,255,.08);
+      --bg:#070a12; --ink:#c8d3f5; --muted:#8b9cc8; --stroke:rgba(255,255,255,.08);
       --a:#a78bfa; --b:#22d3ee; --good:#34d399; --bad:#fb7185;
-      --glow: 0 0 30px rgba(167,139,250,.35), 0 0 60px rgba(34,211,238,.25);
+      --glass:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+      --glow:0 0 30px rgba(167,139,250,.35), 0 0 60px rgba(34,211,238,.25);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      color:var(--ink);
+      margin:0; color:var(--ink); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
       background:
         radial-gradient(1400px 900px at 80% -10%, rgba(167,139,250,.10), transparent),
         radial-gradient(1000px 700px at 10% 110%, rgba(34,211,238,.10), transparent),
         var(--bg);
     }
-    header{padding:24px 20px 4px;display:flex;align-items:center;justify-content:center;gap:10px}
-    .logo{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:var(--glow)}
-    h1{margin:0;font-size:18px;font-weight:900;letter-spacing:.4px}
 
-    .wrap{max-width:1080px;margin:14px auto 40px;padding:0 16px}
+    /* App Shell */
+    .app-shell{display:flex;flex-direction:column;min-height:100vh;opacity:0;pointer-events:none;transition:opacity .25s ease}
+    .app-shell.ready{opacity:1;pointer-events:auto}
+    .topbar{
+      height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:0 16px;border-bottom:1px solid var(--stroke);backdrop-filter:blur(8px);
+      background:var(--glass);
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:var(--glow)}
+    .title{font-weight:900;letter-spacing:.3px}
+    .userchip{display:flex;align-items:center;gap:10px}
+    .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,var(--a),var(--b)); color:#08101f; font-weight:900}
+    .signout{all:unset;color:var(--ink);border:1px solid var(--stroke);padding:6px 10px;border-radius:10px;cursor:pointer}
+
+    .wrap{max-width:1080px;margin:16px auto 40px;padding:0 16px}
     .grid{display:grid;grid-template-columns:1fr 340px;gap:16px}
     .card{
-      position:relative;
-      border-radius:18px;
-      border:1px solid var(--stroke);
-      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
-      box-shadow:0 10px 40px rgba(0,0,0,.35);
-      backdrop-filter: blur(8px);
+      border:1px solid var(--stroke); border-radius:18px; background:var(--glass);
+      box-shadow:0 10px 40px rgba(0,0,0,.35); backdrop-filter:blur(8px);
     }
     .card .head{padding:14px 16px;border-bottom:1px solid var(--stroke);display:flex;justify-content:space-between;align-items:center}
     .card .body{padding:14px 16px}
     .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
 
-    .toolbar{display:flex;gap:10px;align-items:center}
-    .pill{font-size:12px;color:var(--muted);padding:6px 10px;border-radius:999px;border:1px solid var(--stroke)}
-    .pill[data-click]{cursor:pointer}
-    .pill[data-click]:hover{border-color:rgba(255,255,255,.2); color:#fff}
-
     .btn{
       all:unset; padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer;
-      background:linear-gradient(135deg,var(--a),var(--b)); color:#08101f; box-shadow:var(--glow); transform:translateY(0);
-      transition:transform .15s ease, filter .15s ease;
+      background:linear-gradient(135deg,var(--a),var(--b)); color:#08101f; box-shadow:var(--glow);
+      transform:translateY(0); transition:transform .15s ease, filter .15s ease;
     }
-    .btn:hover{transform:translateY(-1px); filter:saturate(1.1)}
-    .btn.secondary{
-      background:transparent; color:var(--ink); border:1px solid var(--stroke); box-shadow:none; font-weight:700;
-    }
+    .btn:hover{transform:translateY(-1px);filter:saturate(1.05)}
+    .btn.secondary{background:transparent;color:var(--ink);border:1px solid var(--stroke);box-shadow:none}
     input,textarea{width:100%;background:transparent;border:none;outline:none;color:var(--ink)}
     input::placeholder,textarea::placeholder{color:var(--muted)}
-    .small{font-size:12px;color:var(--muted)}
+    .pill{font-size:12px;color:var(--muted);padding:6px 10px;border-radius:999px;border:1px solid var(--stroke)}
     .row{display:flex;gap:10px;align-items:center}
-    .row>.grow{flex:1}
-    .stack{display:flex;gap:8px;flex-wrap:wrap}
-
-    .studio{display:grid;grid-template-columns:1.2fr .8fr; gap:12px}
+    .grow{flex:1}
+    .studio{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
     .panel{border:1px solid var(--stroke);border-radius:14px;padding:12px;background:rgba(255,255,255,.02)}
     .out{min-height:120px;white-space:pre-wrap}
-
-    canvas#c{width:100%; height:280px; background:radial-gradient(600px 400px at 50% 100%, rgba(167,139,250,.06), transparent); border-radius:10px; border:1px solid var(--stroke)}
+    canvas#c{width:100%;height:280px;background:radial-gradient(600px 400px at 50% 100%, rgba(167,139,250,.06), transparent);border:1px solid var(--stroke);border-radius:10px}
     audio{width:100%}
-
     .list{list-style:none;margin:0;padding:0}
     .list li{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px dashed var(--stroke)}
     .list li:last-child{border-bottom:0}
-
     footer{margin-top:14px;text-align:center;font-size:12px;color:var(--muted)}
     @media(max-width:980px){.grid{grid-template-columns:1fr}.studio{grid-template-columns:1fr}}
+
+    /* Auth Gate */
+    #authGate{
+      position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:16px;
+      background:
+        radial-gradient(1200px 800px at 80% -10%, rgba(167,139,250,.12), transparent),
+        radial-gradient(900px 600px at 10% 110%, rgba(34,211,238,.12), transparent),
+        var(--bg);
+      z-index:50;
+      transition:opacity .25s ease, visibility .25s ease;
+    }
+    #authGate.hidden{opacity:0; visibility:hidden; pointer-events:none}
+    .auth-card{
+      width:min(680px,100%); border:1px solid var(--stroke); border-radius:20px; background:var(--glass);
+      box-shadow:0 10px 40px rgba(0,0,0,.45); padding:22px;
+    }
+    .auth-title{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .auth-sub{color:var(--muted);margin-bottom:14px}
+    .field{display:flex;gap:10px;margin:10px 0}
+    .field input{border:1px solid var(--stroke);border-radius:12px;padding:12px}
+    .tos{font-size:12px;color:var(--muted)}
   </style>
 
-  <!-- GIF encoding lib (for Save GIF) -->
   <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
 </head>
 <body>
-<header>
-  <div class="logo"></div>
-  <h1>Jarvis Lite — Voice Studio <span class="small">(Diwali Edition)</span></h1>
-</header>
 
-<div class="wrap">
-  <div class="grid">
-    <!-- Voice Studio -->
-    <section class="card">
-      <div class="head">
-        <div class="k">Voice Studio</div>
-        <div class="toolbar">
-          <span class="pill">Zero backend. Optional DB via Supabase.</span>
-        </div>
-      </div>
-      <div class="body">
-        <div class="row" style="margin-bottom:10px">
-          <button class="btn" id="recBtn">🎤 Start</button>
-          <button class="btn secondary" id="stopBtn" disabled>⏹ Stop</button>
-          <div class="pill" id="timer">00:00</div>
-          <div class="grow"></div>
-          <input id="cmd" class="grow" placeholder="Say or type your message…"/>
-          <button class="btn secondary" id="runBtn">Run</button>
-        </div>
+<!-- =================== AUTH GATE (like Gemini/ChatGPT) =================== -->
+<section id="authGate">
+  <div class="auth-card">
+    <div class="auth-title">
+      <div class="dot" style="width:12px;height:12px;border-radius:50%"></div>
+      <div class="title">Jarvis Lite — Voice Studio</div>
+    </div>
+    <div class="auth-sub">Create futuristic voice messages, visuals, and greetings. Sign up or log in to continue.</div>
 
-        <div class="studio">
-          <div class="panel">
-            <div class="k">Canvas + Waveform</div>
-            <canvas id="c" width="900" height="280"></canvas>
-            <div class="stack" style="margin-top:8px">
-              <button class="btn secondary" id="savePngBtn">🪔 Save Card (PNG)</button>
-              <button class="btn secondary" id="saveGifBtn">✨ Save GIF</button>
-              <button class="btn secondary" id="speakBtn">🔊 Speak</button>
-              <button class="btn secondary" id="copyBtn">📋 Copy</button>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="k">Output</div>
-            <div id="out" class="out"></div>
-            <div class="k" style="margin-top:10px">Playback</div>
-            <audio id="player" controls></audio>
-            <div class="stack" style="margin-top:8px">
-              <button class="btn" id="saveMsgBtn">🔖 Save message</button>
-            </div>
-          </div>
-        </div>
+    <div class="field">
+      <input id="name" placeholder="Your name (shown in app)"/>
+    </div>
+    <div class="field">
+      <input id="email" placeholder="Email for magic link (no password)"/>
+      <button class="btn" id="authBtn">Continue</button>
+    </div>
+    <div class="tos">By continuing, you agree to receive a one-time magic link to sign in.</div>
 
-        <div class="row" style="margin-top:10px">
-          <input id="email" placeholder="Enter email for magic link" />
-          <button class="btn secondary" onclick="window.jarvisSignIn()">Sign in</button>
-          <button class="btn secondary" onclick="window.jarvisSignOut()">Sign out</button>
-          <span id="authStatus" class="small"></span>
-        </div>
-      </div>
-    </section>
+    <div id="authHint" class="auth-sub" style="margin-top:14px"></div>
+  </div>
+</section>
 
-    <!-- Right column -->
-    <aside class="card">
-      <div class="head">
-        <div class="k">Messages</div>
-      </div>
-      <div class="body">
-        <ul id="messages" class="list"></ul>
-      </div>
-
-      <div class="head">
-        <div class="k">Activity Feed</div>
-      </div>
-      <div class="body">
-        <div id="log" style="height:180px; overflow:auto;"></div>
-      </div>
-    </aside>
+<!-- =================== APP SHELL =================== -->
+<div class="app-shell" id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      <div class="title">Jarvis Lite — Voice Studio</div>
+    </div>
+    <div class="userchip">
+      <span id="who" class="pill">Not signed in</span>
+      <div id="avatar" class="avatar">?</div>
+      <button class="signout" id="signoutBtn">Sign out</button>
+    </div>
   </div>
 
-  <footer>Built with Web APIs — MediaRecorder, Web Audio, Speech Synthesis, Canvas — plus Supabase Storage & DB. Hosted on Vercel.</footer>
+  <div class="wrap">
+    <div class="grid">
+      <!-- Voice Studio -->
+      <section class="card">
+        <div class="head">
+          <div class="k">Voice Studio</div>
+          <div class="pill">Zero backend. Optional DB via Supabase.</div>
+        </div>
+        <div class="body">
+          <div class="row" style="margin-bottom:10px">
+            <button class="btn" id="recBtn">🎤 Start</button>
+            <button class="btn secondary" id="stopBtn" disabled>⏹ Stop</button>
+            <div class="pill" id="timer">00:00</div>
+            <div class="grow"></div>
+            <input id="cmd" class="grow" placeholder="Say or type your message…"/>
+            <button class="btn secondary" id="runBtn">Run</button>
+          </div>
+
+          <div class="studio">
+            <div class="panel">
+              <div class="k">Canvas + Waveform</div>
+              <canvas id="c" width="900" height="280"></canvas>
+              <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap">
+                <button class="btn secondary" id="savePngBtn">🪔 Save Card (PNG)</button>
+                <button class="btn secondary" id="saveGifBtn">✨ Save GIF</button>
+                <button class="btn secondary" id="speakBtn">🔊 Speak</button>
+                <button class="btn secondary" id="copyBtn">📋 Copy</button>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="k">Output</div>
+              <div id="out" class="out"></div>
+              <div class="k" style="margin-top:10px">Playback</div>
+              <audio id="player" controls></audio>
+              <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap">
+                <button class="btn" id="saveMsgBtn">🔖 Save message</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Messages + Activity -->
+      <aside class="card">
+        <div class="head"><div class="k">Messages</div></div>
+        <div class="body"><ul id="messages" class="list"></ul></div>
+        <div class="head"><div class="k">Activity Feed</div></div>
+        <div class="body"><div id="log" style="height:180px;overflow:auto;"></div></div>
+      </aside>
+    </div>
+
+    <footer>Built with MediaRecorder, Web Audio, Speech Synthesis, Canvas — plus Supabase Storage & DB. Hosted on Vercel.</footer>
+  </div>
 </div>
 
+<!-- =================== APP LOGIC (UI, audio, GIF) =================== -->
 <script>
-  // ===== Basic helpers =====
   const $ = s => document.querySelector(s);
+  const app = $('#app'), gate = $('#authGate'), authBtn = $('#authBtn');
+  const who = $('#who'), avatar = $('#avatar');
   const out = $('#out'), log = $('#log'), c = $('#c'), ctx = c.getContext('2d'), player = $('#player');
-  const cmd = $('#cmd'); const messagesEl = $('#messages');
-  function addLog(msg){ const t = new Date().toLocaleTimeString(); log.innerHTML = `<div><span class="pill">${t}</span> ${msg}</div>` + log.innerHTML; }
-  function speak(text){ const u = new SpeechSynthesisUtterance(text); speechSynthesis.cancel(); speechSynthesis.speak(u); }
+  const cmd = $('#cmd'), messagesEl = $('#messages');
 
-  // ===== Waveform visual + fireworks hybrid =====
+  function addLog(msg){ const t=new Date().toLocaleTimeString(); log.innerHTML = `<div><span class="pill">${t}</span> ${msg}</div>` + log.innerHTML; }
+  function initials(n){ if(!n) return '?'; return n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(); }
+  function speak(text){ const u=new SpeechSynthesisUtterance(text); speechSynthesis.cancel(); speechSynthesis.speak(u); }
+
+  // Waveform
   let audioCtx, analyser, dataArray, micStream, mediaRecorder, chunks=[], recTimer, seconds=0;
   function drawWave(textOverlay=''){
-    ctx.fillStyle = 'rgba(7,10,18,.28)'; ctx.fillRect(0,0,c.width,c.height);
-
+    ctx.fillStyle='rgba(7,10,18,.28)'; ctx.fillRect(0,0,c.width,c.height);
     if(analyser){
       analyser.getByteTimeDomainData(dataArray);
-      const mid = c.height/2;
-      ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(167,139,250,.9)';
-      ctx.beginPath();
-      const slice = c.width / dataArray.length;
+      const mid=c.height/2; ctx.lineWidth=2; ctx.strokeStyle='rgba(167,139,250,.9)'; ctx.beginPath();
+      const slice=c.width/dataArray.length;
       for(let i=0;i<dataArray.length;i++){
-        const v = (dataArray[i]-128)/128;
-        const y = mid + v*110;
-        const x = i*slice;
-        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-      }
-      ctx.stroke();
-      // reactive sparks
+        const v=(dataArray[i]-128)/128; const y=mid+v*110; const x=i*slice;
+        i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      } ctx.stroke();
       for(let i=0;i<40;i++){
-        const x = Math.random()*c.width, y = Math.random()*c.height, a = Math.random()*0.6+0.2;
-        ctx.fillStyle = `rgba(${180+Math.random()*50}, ${120+Math.random()*80}, 255, ${a*0.15})`;
-        ctx.fillRect(x,y,1,1);
+        const x=Math.random()*c.width,y=Math.random()*c.height,a=Math.random()*0.6+0.2;
+        ctx.fillStyle=`rgba(${180+Math.random()*50},${120+Math.random()*80},255,${a*0.15})`; ctx.fillRect(x,y,1,1);
       }
     }
-
-    // Overlay title + text
-    ctx.fillStyle = '#a78bfa'; ctx.font = '800 22px Inter'; ctx.fillText('✨ Happy Diwali ✨', 16, 34);
+    ctx.fillStyle='#a78bfa'; ctx.font='800 22px Inter'; ctx.fillText('✨ Happy Diwali ✨',16,34);
     if(textOverlay){
-      ctx.fillStyle = '#c8d3f5'; ctx.font = '600 16px Inter';
-      wrapText(textOverlay, 16, 62, c.width-32, 24);
+      ctx.fillStyle='#c8d3f5'; ctx.font='600 16px Inter'; wrapText(textOverlay,16,62,c.width-32,24);
     }
   }
-  function wrapText(text,x,y,maxW,lineH){
-    const words = text.split(' '); let line='';
-    for(let n=0;n<words.length;n++){
-      const test = line + words[n] + ' ';
-      if(ctx.measureText(test).width > maxW && n>0){ ctx.fillText(line,x,y); line = words[n] + ' '; y += lineH; }
-      else line = test;
-    }
-    ctx.fillText(line,x,y);
-  }
-  function loop(){ drawWave(out.textContent); requestAnimationFrame(loop); }
-  loop();
+  function wrapText(text,x,y,maxW,lineH){ const words=text.split(' '); let line=''; for(let n=0;n<words.length;n++){ const test=line+words[n]+' '; if(ctx.measureText(test).width>maxW&&n>0){ ctx.fillText(line,x,y); line=words[n]+' '; y+=lineH; } else line=test; } ctx.fillText(line,x,y); }
+  function loop(){ drawWave(out.textContent); requestAnimationFrame(loop); } loop();
 
-  // ===== Recording controls =====
-  const recBtn = $('#recBtn'), stopBtn = $('#stopBtn'), timer = $('#timer');
-  recBtn.onclick = async () => {
+  // Recording
+  const recBtn=$('#recBtn'), stopBtn=$('#stopBtn'), timer=$('#timer');
+  recBtn.onclick = async ()=>{
     try{
       micStream = await navigator.mediaDevices.getUserMedia({audio:true});
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtx = new (window.AudioContext||window.webkitAudioContext)();
       const src = audioCtx.createMediaStreamSource(micStream);
-      analyser = audioCtx.createAnalyser(); analyser.fftSize = 1024;
-      dataArray = new Uint8Array(analyser.frequencyBinCount);
-      src.connect(analyser);
-
-      mediaRecorder = new MediaRecorder(micStream);
-      chunks = [];
-      mediaRecorder.ondataavailable = e => chunks.push(e.data);
-      mediaRecorder.onstop = onRecordingStop;
+      analyser = audioCtx.createAnalyser(); analyser.fftSize=1024; dataArray=new Uint8Array(analyser.frequencyBinCount); src.connect(analyser);
+      mediaRecorder = new MediaRecorder(micStream); chunks=[]; mediaRecorder.ondataavailable=e=>chunks.push(e.data); mediaRecorder.onstop=onStop;
       mediaRecorder.start();
-
-      recBtn.disabled = true; stopBtn.disabled = false; seconds=0;
-      recTimer = setInterval(()=>{ seconds++; timer.textContent = new Date(seconds*1000).toISOString().substr(14,5); }, 1000);
+      recBtn.disabled=true; stopBtn.disabled=false; seconds=0; recTimer=setInterval(()=>{seconds++;timer.textContent=new Date(seconds*1000).toISOString().substr(14,5)},1000);
       addLog('Recording started.');
-    }catch(e){ alert('Mic access denied.'); }
+    }catch(e){ alert('Mic access denied'); }
   };
-  stopBtn.onclick = () => {
-    stopBtn.disabled = true; recBtn.disabled = false;
-    clearInterval(recTimer); timer.textContent='00:00';
-    mediaRecorder && mediaRecorder.stop();
-    micStream && micStream.getTracks().forEach(t=>t.stop());
-    addLog('Recording stopped.');
-  };
-  async function onRecordingStop(){
-    const blob = new Blob(chunks, {type:'audio/webm'});
-    player.src = URL.createObjectURL(blob);
-    player.load();
-    window.__lastBlob = blob;  // keep for saving
-  }
+  stopBtn.onclick=()=>{ stopBtn.disabled=true; recBtn.disabled=false; clearInterval(recTimer); timer.textContent='00:00'; mediaRecorder&&mediaRecorder.stop(); micStream&&micStream.getTracks().forEach(t=>t.stop()); addLog('Recording stopped.'); }
+  async function onStop(){ const blob=new Blob(chunks,{type:'audio/webm'}); player.src=URL.createObjectURL(blob); player.load(); window.__lastBlob=blob; }
 
-  // ===== Commands =====
-  $('#runBtn').onclick = ()=>{
-    const s = cmd.value.trim(); if(!s) return;
-    out.textContent = s; addLog('Command: ' + s);
-    speak('Got it.');
-  };
+  // Commands
+  $('#runBtn').onclick = ()=>{ const s=cmd.value.trim(); if(!s) return; out.textContent=s; addLog('Command: '+s); };
+
+  // Buttons
   $('#copyBtn').onclick = ()=>{ navigator.clipboard.writeText(out.textContent||''); addLog('Output copied'); };
   $('#speakBtn').onclick = ()=> speak(out.textContent||'');
+  $('#savePngBtn').onclick = ()=>{ const a=document.createElement('a'); a.download='diwali-card.png'; a.href=c.toDataURL('image/png'); a.click(); addLog('PNG saved'); };
+  $('#saveGifBtn').onclick = ()=>{ addLog('Rendering GIF…'); const gif=new GIF({workers:2,quality:10,workerScript:'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'}); for(let i=0;i<50;i++){ drawWave(out.textContent); gif.addFrame(c,{copy:true,delay:50}); } gif.on('finished',b=>{ const a=document.createElement('a'); a.download='diwali-card.gif'; a.href=URL.createObjectURL(b); a.click(); addLog('GIF saved'); }); gif.render(); };
 
-  // ===== Save card (PNG / GIF) =====
-  $('#savePngBtn').onclick = ()=>{
-    const a=document.createElement('a'); a.download='diwali-card.png'; a.href=c.toDataURL('image/png'); a.click(); addLog('PNG saved');
-  };
-  $('#saveGifBtn').onclick = async ()=>{
-    addLog('Rendering GIF…');
-    const gif = new GIF({workers:2, quality:10, workerScript:'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'});
-    // capture ~2.5s animation @ 20fps
-    for(let i=0;i<50;i++){
-      drawWave(out.textContent);
-      gif.addFrame(c, {copy:true, delay:50});
-    }
-    gif.on('finished', blob=>{
-      const a=document.createElement('a'); a.download='diwali-card.gif'; a.href=URL.createObjectURL(blob); a.click();
-      addLog('GIF saved');
-    });
-    gif.render();
-  };
-
-  // ===== Messages list (local fallback) =====
-  function prependMessageRow({text,audio_url,ts}){
-    const when = new Date(ts||Date.now()).toLocaleString();
-    const li = document.createElement('li');
-    li.innerHTML = `<span>${text ? text.slice(0,60) : '(no text)'}<br><span class="small">${when}</span></span>
-                    <span class="stack">
-                      ${audio_url ? `<a class="pill" href="${audio_url}" target="_blank">Play</a>`:''}
-                    </span>`;
-    messagesEl.prepend(li);
-  }
+  function prependMessageRow({text,audio_url,ts}){ const when=new Date(ts||Date.now()).toLocaleString(); const li=document.createElement('li'); li.innerHTML=`<span>${text?text.slice(0,60):'(no text)'}<br><span class="pill" style="border:none">${when}</span></span><span>${audio_url?`<a class="pill" href="${audio_url}" target="_blank">Play</a>`:''}</span>`; messagesEl.prepend(li); }
 </script>
 
-<!-- Supabase wiring -->
+<!-- =================== SUPABASE AUTH + STORAGE/DB =================== -->
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
   const SUPABASE_URL  = 'https://tqkixrssdwucgmgubbpm.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxa2l4cnNzZHd1Y2dtZ3ViYnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4NDkwMzgsImV4cCI6MjA3NjQyNTAzOH0.rcCNkdNhpvX34Dwg105QZ-BeaJ1oy2Wvp4MhY6akwcA';
-
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  // Auth
-  window.jarvisSignIn = async () => {
+  const gate = document.getElementById('authGate');
+  const app  = document.getElementById('app');
+  const authBtn = document.getElementById('authBtn');
+  const authHint = document.getElementById('authHint');
+  const who = document.getElementById('who');
+  const avatar = document.getElementById('avatar');
+  const signoutBtn = document.getElementById('signoutBtn');
+
+  // --------- Auth screen actions ----------
+  authBtn.onclick = async ()=>{
     const email = (document.getElementById('email')?.value || '').trim();
-    if(!email) return alert('Enter an email first!');
+    const name  = (document.getElementById('name')?.value || '').trim();
+    if(!email) return alert('Enter an email');
+    localStorage.setItem('pending_name', name);
     const { error } = await supabase.auth.signInWithOtp({ email });
-    alert(error ? `Sign-in error: ${error.message}` : 'Magic link sent! Check your inbox.');
+    authHint.textContent = error ? `Error: ${error.message}` : 'Magic link sent! Check your inbox on this device.';
   };
-  window.jarvisSignOut = async () => { await supabase.auth.signOut(); updateStatus(); };
 
-  async function updateStatus(){
-    const s = document.getElementById('authStatus');
-    const { data:{ user } } = await supabase.auth.getUser();
-    s.textContent = user ? 'Signed in ✅' : 'Not signed in ❌';
-  }
-  updateStatus();
-  supabase.auth.onAuthStateChange(() => updateStatus());
+  signoutBtn.onclick = async ()=>{ await supabase.auth.signOut(); renderAuth(); };
 
-  // Save voice + metadata
+  // --------- Save helpers used by main UI ----------
+  window.jarvisSaveTask = async (text) => { /* keep for compatibility if you need later */ return false; };
+
   document.getElementById('saveMsgBtn').onclick = async ()=>{
     const { data:{ user } } = await supabase.auth.getUser();
     if(!user) return alert('Sign in first.');
@@ -332,25 +303,50 @@
       audio_url = data.publicUrl;
     }
 
-    const { error: insErr } = await supabase.from('messages').insert({
-      user_id: user.id, text, audio_url
-    });
+    const { error: insErr } = await supabase.from('messages').insert({ user_id:user.id, text, audio_url });
     if(insErr){ alert('DB insert failed: '+insErr.message); return; }
 
-    // UI
-    const row = {text, audio_url, ts: Date.now()};
-    prependMessageRow(row);
-    alert('Saved!'); 
+    window.prependMessageRow?.({text, audio_url, ts: Date.now()});
+    alert('Saved!');
   };
 
-  // Load recent messages on open
-  (async ()=>{
+  // --------- Render auth gate vs app ----------
+  async function renderAuth(){
     const { data:{ user } } = await supabase.auth.getUser();
-    if(!user) return;
-    const { data, error } = await supabase.from('messages')
-      .select('text,audio_url,created_at').order('created_at',{ascending:false}).limit(10);
-    if(!error && data){ data.forEach(m=>window.prependMessageRow?.({text:m.text, audio_url:m.audio_url, ts:m.created_at})); }
-  })();
+
+    if(user){
+      // Upsert name (optional profiles table)
+      const pending = localStorage.getItem('pending_name') || '';
+      if(pending){
+        try{ await supabase.from('profiles').upsert({ user_id: user.id, name: pending }); }catch(e){}
+        localStorage.removeItem('pending_name');
+      }
+
+      who.textContent = 'Signed in';
+      // Try to fetch profile name; otherwise use pending/local
+      let name = pending;
+      try{
+        const { data: prof } = await supabase.from('profiles').select('name').eq('user_id', user.id).single();
+        if(prof?.name) name = prof.name;
+      }catch(e){}
+      if(!name) name = 'You';
+      avatar.textContent = (name||'You').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+
+      // Load recent messages
+      try{
+        const { data, error } = await supabase.from('messages').select('text,audio_url,created_at').order('created_at',{ascending:false}).limit(10);
+        if(!error && data){ data.forEach(m=>window.prependMessageRow?.({text:m.text, audio_url:m.audio_url, ts:m.created_at})); }
+      }catch(e){}
+
+      gate.classList.add('hidden');
+      app.classList.add('ready');
+    } else {
+      app.classList.remove('ready');
+      gate.classList.remove('hidden');
+    }
+  }
+  renderAuth();
+  supabase.auth.onAuthStateChange(()=>renderAuth());
 </script>
 </body>
 </html>
