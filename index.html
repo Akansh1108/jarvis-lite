@@ -2,364 +2,355 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jarvis Lite — Voice OS (Diwali Edition)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jarvis Lite — Voice Studio (Diwali Edition)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <meta name="theme-color" content="#0b0f1a" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b0f1a"/>
   <style>
     :root{
-      --bg:#070a12; --panel:#0b0f1a; --ink:#c8d3f5; --muted:#8b9cc8; --accent:#a78bfa; --accent2:#22d3ee; --success:#34d399; --danger:#fb7185;
-      --glow:0 0 30px rgba(167,139,250,.35), 0 0 60px rgba(34,211,238,.25);
+      --bg: #070a12;
+      --ink:#c8d3f5; --muted:#8b9cc8;
+      --panel:#0b0f1a; --stroke: rgba(255,255,255,.08);
+      --a:#a78bfa; --b:#22d3ee; --good:#34d399; --bad:#fb7185;
+      --glow: 0 0 30px rgba(167,139,250,.35), 0 0 60px rgba(34,211,238,.25);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background:radial-gradient(1200px 800px at 80% -10%,rgba(167,139,250,.08),transparent),
-                 radial-gradient(1000px 600px at 10% 110%,rgba(34,211,238,.08),transparent),
-                 var(--bg);
-      color:var(--ink)}
-    header{padding:24px 20px 0;display:flex;align-items:center;gap:12px;justify-content:center}
-    .logo{width:14px;height:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;box-shadow:var(--glow)}
-    h1{font-size:18px;font-weight:800;letter-spacing:.4px;margin:0}
-    .wrap{max-width:980px;margin:18px auto;padding:0 16px 40px}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1400px 900px at 80% -10%, rgba(167,139,250,.10), transparent),
+        radial-gradient(1000px 700px at 10% 110%, rgba(34,211,238,.10), transparent),
+        var(--bg);
+    }
+    header{padding:24px 20px 4px;display:flex;align-items:center;justify-content:center;gap:10px}
+    .logo{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:var(--glow)}
+    h1{margin:0;font-size:18px;font-weight:900;letter-spacing:.4px}
+
+    .wrap{max-width:1080px;margin:14px auto 40px;padding:0 16px}
     .grid{display:grid;grid-template-columns:1fr 340px;gap:16px}
-    .panel{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.00));
-      border:1px solid rgba(255,255,255,.06);backdrop-filter:blur(6px); border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,.35)}
-    .hero{padding:20px}
-    .voicebar{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.06);padding:10px;border-radius:14px}
-    button{all:unset;background:linear-gradient(135deg,var(--accent),var(--accent2));
-      padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer;color:#08101f;box-shadow:var(--glow)}
-    button.secondary{background:transparent;color:var(--ink);border:1px solid rgba(255,255,255,.08);box-shadow:none}
+    .card{
+      position:relative;
+      border-radius:18px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      box-shadow:0 10px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+    }
+    .card .head{padding:14px 16px;border-bottom:1px solid var(--stroke);display:flex;justify-content:space-between;align-items:center}
+    .card .body{padding:14px 16px}
+    .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+
+    .toolbar{display:flex;gap:10px;align-items:center}
+    .pill{font-size:12px;color:var(--muted);padding:6px 10px;border-radius:999px;border:1px solid var(--stroke)}
+    .pill[data-click]{cursor:pointer}
+    .pill[data-click]:hover{border-color:rgba(255,255,255,.2); color:#fff}
+
+    .btn{
+      all:unset; padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer;
+      background:linear-gradient(135deg,var(--a),var(--b)); color:#08101f; box-shadow:var(--glow); transform:translateY(0);
+      transition:transform .15s ease, filter .15s ease;
+    }
+    .btn:hover{transform:translateY(-1px); filter:saturate(1.1)}
+    .btn.secondary{
+      background:transparent; color:var(--ink); border:1px solid var(--stroke); box-shadow:none; font-weight:700;
+    }
     input,textarea{width:100%;background:transparent;border:none;outline:none;color:var(--ink)}
     input::placeholder,textarea::placeholder{color:var(--muted)}
     .small{font-size:12px;color:var(--muted)}
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
-    .card{padding:12px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06)}
-    .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
-    .out{min-height:140px;white-space:pre-wrap}
-    .right{padding:16px;display:flex;flex-direction:column;gap:12px}
-    .log{height:220px;overflow:auto;padding:10px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.06)}
-    .list li{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.06)}
+    .row{display:flex;gap:10px;align-items:center}
+    .row>.grow{flex:1}
+    .stack{display:flex;gap:8px;flex-wrap:wrap}
+
+    .studio{display:grid;grid-template-columns:1.2fr .8fr; gap:12px}
+    .panel{border:1px solid var(--stroke);border-radius:14px;padding:12px;background:rgba(255,255,255,.02)}
+    .out{min-height:120px;white-space:pre-wrap}
+
+    canvas#c{width:100%; height:280px; background:radial-gradient(600px 400px at 50% 100%, rgba(167,139,250,.06), transparent); border-radius:10px; border:1px solid var(--stroke)}
+    audio{width:100%}
+
+    .list{list-style:none;margin:0;padding:0}
+    .list li{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px dashed var(--stroke)}
     .list li:last-child{border-bottom:0}
-    .tag{font-size:11px;color:#08101f;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:2px 8px;border-radius:999px}
-    .pill{font-size:11px;color:var(--muted);padding:2px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.08)}
-    canvas{width:100%;height:220px;background:radial-gradient(600px 400px at 50% 100%,rgba(167,139,250,.08),transparent)}
-    footer{margin-top:16px;font-size:12px;color:var(--muted);text-align:center}
-    @media(max-width:980px){.grid{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}}
+
+    footer{margin-top:14px;text-align:center;font-size:12px;color:var(--muted)}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}.studio{grid-template-columns:1fr}}
   </style>
+
+  <!-- GIF encoding lib (for Save GIF) -->
+  <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
 </head>
 <body>
-  <header>
-    <div class="logo"></div>
-    <h1>Jarvis Lite — Voice OS <span class="small">(Diwali Edition)</span></h1>
-  </header>
+<header>
+  <div class="logo"></div>
+  <h1>Jarvis Lite — Voice Studio <span class="small">(Diwali Edition)</span></h1>
+</header>
 
-  <div class="wrap">
-    <div class="grid">
-      <section class="panel hero">
-        <div class="voicebar">
-          <button id="micBtn">🎤 Start</button>
-          <input id="cmd" placeholder="Try: ‘make a diwali wish card for Resham’, ‘create QR for https://ctrlaltparty.in’, ‘add task buy diyas 7pm’" />
-          <button class="secondary" id="runBtn">Run</button>
+<div class="wrap">
+  <div class="grid">
+    <!-- Voice Studio -->
+    <section class="card">
+      <div class="head">
+        <div class="k">Voice Studio</div>
+        <div class="toolbar">
+          <span class="pill">Zero backend. Optional DB via Supabase.</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="row" style="margin-bottom:10px">
+          <button class="btn" id="recBtn">🎤 Start</button>
+          <button class="btn secondary" id="stopBtn" disabled>⏹ Stop</button>
+          <div class="pill" id="timer">00:00</div>
+          <div class="grow"></div>
+          <input id="cmd" class="grow" placeholder="Say or type your message…"/>
+          <button class="btn secondary" id="runBtn">Run</button>
         </div>
 
-        <!-- Magic-link sign-in -->
-        <div style="display:flex;gap:8px;margin:10px 0;align-items:center">
-          <input id="email" placeholder="Enter email for magic link" />
-          <button class="secondary" onclick="window.jarvisSignIn()">Sign in</button>
-          <button class="secondary" onclick="window.jarvisSignOut()" title="Sign out">Sign out</button>
-          <span id="authStatus" class="small"></span>
-        </div>
-
-        <div class="small" style="margin-top:4px">Zero backend. Browser-only. Optional DB & Auth via Supabase.</div>
-
-        <div class="cards">
-          <div class="card">
+        <div class="studio">
+          <div class="panel">
+            <div class="k">Canvas + Waveform</div>
+            <canvas id="c" width="900" height="280"></canvas>
+            <div class="stack" style="margin-top:8px">
+              <button class="btn secondary" id="savePngBtn">🪔 Save Card (PNG)</button>
+              <button class="btn secondary" id="saveGifBtn">✨ Save GIF</button>
+              <button class="btn secondary" id="speakBtn">🔊 Speak</button>
+              <button class="btn secondary" id="copyBtn">📋 Copy</button>
+            </div>
+          </div>
+          <div class="panel">
             <div class="k">Output</div>
             <div id="out" class="out"></div>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <button class="secondary" id="speakBtn">🔊 Speak</button>
-              <button class="secondary" id="copyBtn">📋 Copy</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="k">Diwali Canvas</div>
-            <canvas id="canvas" width="700" height="220"></canvas>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <button class="secondary" id="saveImgBtn">🪔 Save Card</button>
-              <button class="secondary" id="shareBtn">📤 Share</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="k">QR</div>
-            <canvas id="qrc" width="220" height="220"></canvas>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <input id="qrText" placeholder="Text or URL for QR"/>
-              <button class="secondary" id="qrBtn">Generate</button>
+            <div class="k" style="margin-top:10px">Playback</div>
+            <audio id="player" controls></audio>
+            <div class="stack" style="margin-top:8px">
+              <button class="btn" id="saveMsgBtn">🔖 Save message</button>
             </div>
           </div>
         </div>
-      </section>
 
-      <aside class="panel right">
-        <div>
-          <div class="k">Tasks</div>
-          <ul id="tasks" class="list"></ul>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <input id="taskIn" placeholder="Add task…">
-            <button class="secondary" id="addTask">Add</button>
-          </div>
+        <div class="row" style="margin-top:10px">
+          <input id="email" placeholder="Enter email for magic link" />
+          <button class="btn secondary" onclick="window.jarvisSignIn()">Sign in</button>
+          <button class="btn secondary" onclick="window.jarvisSignOut()">Sign out</button>
+          <span id="authStatus" class="small"></span>
         </div>
-        <div>
-          <div class="k">Command Log</div>
-          <div id="log" class="log"></div>
-        </div>
-        <div>
-          <div class="k">Quick Commands</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-            <span class="pill">make a diwali wish card for Resham</span>
-            <span class="pill">create QR for https://ctrlaltparty.in</span>
-            <span class="pill">add task buy diyas 7pm</span>
-            <span class="pill">clear canvas</span>
-          </div>
-        </div>
-      </aside>
-    </div>
-    <footer>Built with Web APIs — Speech Recognition, Speech Synthesis, Canvas, LocalStorage, Web Share — plus Supabase (Free). Host on Vercel for ₹0.</footer>
+      </div>
+    </section>
+
+    <!-- Right column -->
+    <aside class="card">
+      <div class="head">
+        <div class="k">Messages</div>
+      </div>
+      <div class="body">
+        <ul id="messages" class="list"></ul>
+      </div>
+
+      <div class="head">
+        <div class="k">Activity Feed</div>
+      </div>
+      <div class="body">
+        <div id="log" style="height:180px; overflow:auto;"></div>
+      </div>
+    </aside>
   </div>
 
-  <script>
-    // === Utilities ===
-    const $ = (s)=>document.querySelector(s);
-    const out = $('#out'), log = $('#log'), cmd = $('#cmd');
-    const canvas = $('#canvas'), ctx = canvas.getContext('2d');
-    const qrc = $('#qrc'), qctx = qrc.getContext('2d');
-    const tasksEl = $('#tasks');
+  <footer>Built with Web APIs — MediaRecorder, Web Audio, Speech Synthesis, Canvas — plus Supabase Storage & DB. Hosted on Vercel.</footer>
+</div>
 
-    function addLog(text){
-      const t = new Date().toLocaleTimeString();
-      log.innerHTML = `<div><span class="tag">${t}</span> ${text}</div>` + log.innerHTML;
-    }
-    function speak(text){
-      if(!('speechSynthesis' in window)) return alert('Speech Synthesis not supported');
-      const u = new SpeechSynthesisUtterance(text); u.rate = 1.02; u.pitch=1.0;
-      window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+<script>
+  // ===== Basic helpers =====
+  const $ = s => document.querySelector(s);
+  const out = $('#out'), log = $('#log'), c = $('#c'), ctx = c.getContext('2d'), player = $('#player');
+  const cmd = $('#cmd'); const messagesEl = $('#messages');
+  function addLog(msg){ const t = new Date().toLocaleTimeString(); log.innerHTML = `<div><span class="pill">${t}</span> ${msg}</div>` + log.innerHTML; }
+  function speak(text){ const u = new SpeechSynthesisUtterance(text); speechSynthesis.cancel(); speechSynthesis.speak(u); }
+
+  // ===== Waveform visual + fireworks hybrid =====
+  let audioCtx, analyser, dataArray, micStream, mediaRecorder, chunks=[], recTimer, seconds=0;
+  function drawWave(textOverlay=''){
+    ctx.fillStyle = 'rgba(7,10,18,.28)'; ctx.fillRect(0,0,c.width,c.height);
+
+    if(analyser){
+      analyser.getByteTimeDomainData(dataArray);
+      const mid = c.height/2;
+      ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(167,139,250,.9)';
+      ctx.beginPath();
+      const slice = c.width / dataArray.length;
+      for(let i=0;i<dataArray.length;i++){
+        const v = (dataArray[i]-128)/128;
+        const y = mid + v*110;
+        const x = i*slice;
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      // reactive sparks
+      for(let i=0;i<40;i++){
+        const x = Math.random()*c.width, y = Math.random()*c.height, a = Math.random()*0.6+0.2;
+        ctx.fillStyle = `rgba(${180+Math.random()*50}, ${120+Math.random()*80}, 255, ${a*0.15})`;
+        ctx.fillRect(x,y,1,1);
+      }
     }
 
-    // === Local tasks (fallback) ===
-    function loadTasksLocal(){ return JSON.parse(localStorage.getItem('jarvis_tasks')||'[]'); }
-    function saveTasksLocal(list){ localStorage.setItem('jarvis_tasks', JSON.stringify(list)); }
-    function renderTasks(){
-      const list = loadTasksLocal();
-      tasksEl.innerHTML = list.map((t,i)=>`<li><span>${t.text}</span><span><button class="secondary" data-i="${i}">✔</button></span></li>`).join('');
+    // Overlay title + text
+    ctx.fillStyle = '#a78bfa'; ctx.font = '800 22px Inter'; ctx.fillText('✨ Happy Diwali ✨', 16, 34);
+    if(textOverlay){
+      ctx.fillStyle = '#c8d3f5'; ctx.font = '600 16px Inter';
+      wrapText(textOverlay, 16, 62, c.width-32, 24);
     }
-    tasksEl.addEventListener('click', (e)=>{
-      const btn = e.target.closest('button'); if(!btn) return;
-      const i = +btn.dataset.i; const list = loadTasksLocal();
-      list.splice(i,1); saveTasksLocal(list); renderTasks();
+  }
+  function wrapText(text,x,y,maxW,lineH){
+    const words = text.split(' '); let line='';
+    for(let n=0;n<words.length;n++){
+      const test = line + words[n] + ' ';
+      if(ctx.measureText(test).width > maxW && n>0){ ctx.fillText(line,x,y); line = words[n] + ' '; y += lineH; }
+      else line = test;
+    }
+    ctx.fillText(line,x,y);
+  }
+  function loop(){ drawWave(out.textContent); requestAnimationFrame(loop); }
+  loop();
+
+  // ===== Recording controls =====
+  const recBtn = $('#recBtn'), stopBtn = $('#stopBtn'), timer = $('#timer');
+  recBtn.onclick = async () => {
+    try{
+      micStream = await navigator.mediaDevices.getUserMedia({audio:true});
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = audioCtx.createMediaStreamSource(micStream);
+      analyser = audioCtx.createAnalyser(); analyser.fftSize = 1024;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      src.connect(analyser);
+
+      mediaRecorder = new MediaRecorder(micStream);
+      chunks = [];
+      mediaRecorder.ondataavailable = e => chunks.push(e.data);
+      mediaRecorder.onstop = onRecordingStop;
+      mediaRecorder.start();
+
+      recBtn.disabled = true; stopBtn.disabled = false; seconds=0;
+      recTimer = setInterval(()=>{ seconds++; timer.textContent = new Date(seconds*1000).toISOString().substr(14,5); }, 1000);
+      addLog('Recording started.');
+    }catch(e){ alert('Mic access denied.'); }
+  };
+  stopBtn.onclick = () => {
+    stopBtn.disabled = true; recBtn.disabled = false;
+    clearInterval(recTimer); timer.textContent='00:00';
+    mediaRecorder && mediaRecorder.stop();
+    micStream && micStream.getTracks().forEach(t=>t.stop());
+    addLog('Recording stopped.');
+  };
+  async function onRecordingStop(){
+    const blob = new Blob(chunks, {type:'audio/webm'});
+    player.src = URL.createObjectURL(blob);
+    player.load();
+    window.__lastBlob = blob;  // keep for saving
+  }
+
+  // ===== Commands =====
+  $('#runBtn').onclick = ()=>{
+    const s = cmd.value.trim(); if(!s) return;
+    out.textContent = s; addLog('Command: ' + s);
+    speak('Got it.');
+  };
+  $('#copyBtn').onclick = ()=>{ navigator.clipboard.writeText(out.textContent||''); addLog('Output copied'); };
+  $('#speakBtn').onclick = ()=> speak(out.textContent||'');
+
+  // ===== Save card (PNG / GIF) =====
+  $('#savePngBtn').onclick = ()=>{
+    const a=document.createElement('a'); a.download='diwali-card.png'; a.href=c.toDataURL('image/png'); a.click(); addLog('PNG saved');
+  };
+  $('#saveGifBtn').onclick = async ()=>{
+    addLog('Rendering GIF…');
+    const gif = new GIF({workers:2, quality:10, workerScript:'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'});
+    // capture ~2.5s animation @ 20fps
+    for(let i=0;i<50;i++){
+      drawWave(out.textContent);
+      gif.addFrame(c, {copy:true, delay:50});
+    }
+    gif.on('finished', blob=>{
+      const a=document.createElement('a'); a.download='diwali-card.gif'; a.href=URL.createObjectURL(blob); a.click();
+      addLog('GIF saved');
     });
+    gif.render();
+  };
 
-    // === Canvas ===
-    function clearCanvas(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function fireworks(){
-      clearCanvas();
-      const particles = Array.from({length: 80}).map(()=>({
-        x: canvas.width/2, y: canvas.height, vx:(Math.random()-0.5)*4, vy: -Math.random()*6-3, life: Math.random()*60+40
-      }));
-      let frame = 0;
-      const anim = ()=>{
-        frame++; ctx.fillStyle='rgba(7,10,18,.25)'; ctx.fillRect(0,0,canvas.width,canvas.height);
-        particles.forEach(p=>{
-          p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; p.life--;
-          const hue = 250 + Math.sin((p.x+p.y+frame)/20)*60;
-          ctx.fillStyle = `hsla(${hue},90%,70%,.9)`;
-          ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fill();
-        });
-        if(frame<180) requestAnimationFrame(anim);
-      };
-      anim();
+  // ===== Messages list (local fallback) =====
+  function prependMessageRow({text,audio_url,ts}){
+    const when = new Date(ts||Date.now()).toLocaleString();
+    const li = document.createElement('li');
+    li.innerHTML = `<span>${text ? text.slice(0,60) : '(no text)'}<br><span class="small">${when}</span></span>
+                    <span class="stack">
+                      ${audio_url ? `<a class="pill" href="${audio_url}" target="_blank">Play</a>`:''}
+                    </span>`;
+    messagesEl.prepend(li);
+  }
+</script>
+
+<!-- Supabase wiring -->
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL  = 'https://tqkixrssdwucgmgubbpm.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxa2l4cnNzZHd1Y2dtZ3ViYnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4NDkwMzgsImV4cCI6MjA3NjQyNTAzOH0.rcCNkdNhpvX34Dwg105QZ-BeaJ1oy2Wvp4MhY6akwcA';
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // Auth
+  window.jarvisSignIn = async () => {
+    const email = (document.getElementById('email')?.value || '').trim();
+    if(!email) return alert('Enter an email first!');
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    alert(error ? `Sign-in error: ${error.message}` : 'Magic link sent! Check your inbox.');
+  };
+  window.jarvisSignOut = async () => { await supabase.auth.signOut(); updateStatus(); };
+
+  async function updateStatus(){
+    const s = document.getElementById('authStatus');
+    const { data:{ user } } = await supabase.auth.getUser();
+    s.textContent = user ? 'Signed in ✅' : 'Not signed in ❌';
+  }
+  updateStatus();
+  supabase.auth.onAuthStateChange(() => updateStatus());
+
+  // Save voice + metadata
+  document.getElementById('saveMsgBtn').onclick = async ()=>{
+    const { data:{ user } } = await supabase.auth.getUser();
+    if(!user) return alert('Sign in first.');
+
+    const text = document.getElementById('out').textContent || '';
+    const blob = window.__lastBlob;
+    let audio_url = null;
+
+    if(blob){
+      const fileName = `voice_messages/${user.id}/${Date.now()}.webm`;
+      const { error: upErr } = await supabase.storage.from('voice_messages').upload(fileName, blob, {contentType:'audio/webm', upsert:false});
+      if(upErr){ alert('Upload failed: '+upErr.message); return; }
+      const { data } = supabase.storage.from('voice_messages').getPublicUrl(fileName);
+      audio_url = data.publicUrl;
     }
-    function drawWishCard(text){
-      clearCanvas();
-      const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-      grad.addColorStop(0,'#0b0f1a'); grad.addColorStop(1,'#121735');
-      ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
-      fireworks();
-      ctx.fillStyle='#a78bfa'; ctx.font='700 26px Inter'; ctx.fillText('✨ Happy Diwali ✨', 22, 44);
-      ctx.fillStyle='#c8d3f5'; ctx.font='600 18px Inter';
-      wrapText(ctx, text, 22, 80, canvas.width-44, 26);
-      ctx.fillStyle='#22d3ee'; ctx.font='600 14px Inter';
-      ctx.fillText('— from Akansh & Resham', 22, canvas.height-18);
-    }
-    function wrapText(ctx, text, x, y, maxWidth, lineHeight){
-      const words = text.split(' '); let line='';
-      for(let n=0; n<words.length; n++){
-        const testLine = line + words[n] + ' ';
-        const metrics = ctx.measureText(testLine);
-        if(metrics.width>maxWidth && n>0){ ctx.fillText(line, x, y); line = words[n] + ' '; y += lineHeight; }
-        else { line = testLine; }
-      }
-      ctx.fillText(line, x, y);
-    }
 
-    // === Artistic pseudo-QR (zero deps) ===
-    const QREncode = (()=>({
-      draw:(text, ctx)=>{
-        const W=220,H=220; ctx.clearRect(0,0,W,H); ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#000';
-        const seed = text.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
-        const n=21; const cell=Math.floor(W/n);
-        for(let y=0;y<n;y++){ for(let x=0;x<n;x++){
-          const v = ((x*31 + y*17 + seed)%7)<3; if(v) ctx.fillRect(x*cell, y*cell, cell-1, cell-1);
-        }}  // finder patterns
-        ctx.fillStyle='#fff'; ctx.fillRect(0,0,cell*7,cell*7); ctx.fillRect((n-7)*cell,0,cell*7,cell*7); ctx.fillRect(0,(n-7)*cell,cell*7,cell*7);
-        ctx.fillStyle='#000'; ctx.fillRect(cell,cell,cell*5,cell*5); ctx.clearRect(cell*2,cell*2,cell*3,cell*3);
-        ctx.fillRect((n-6)*cell,cell,cell*5,cell*5); ctx.clearRect((n-5)*cell+cell,(cell*2),cell*3,cell*3);
-        ctx.fillRect(cell,(n-6)*cell,cell*5,cell*5); ctx.clearRect(cell*2,(n-5)*cell,cell*3,cell*3);
-        ctx.fillStyle='#000'; ctx.font='10px Inter'; ctx.fillText('QR (artistic)', 8, H-6);
-      }
-    }))();
-    function makeQR(text){ QREncode.draw(text, qctx); addLog(`QR generated for: ${text}`); }
+    const { error: insErr } = await supabase.from('messages').insert({
+      user_id: user.id, text, audio_url
+    });
+    if(insErr){ alert('DB insert failed: '+insErr.message); return; }
 
-    // === Commands ===
-    function runCommand(raw){
-      const s = raw.trim(); if(!s) return;
-      addLog(`Command: ${s}`);
-      const low = s.toLowerCase();
+    // UI
+    const row = {text, audio_url, ts: Date.now()};
+    prependMessageRow(row);
+    alert('Saved!'); 
+  };
 
-      if(low.startsWith('add task ')){
-        const v = s.slice(9).trim();
-        addTaskSmart(v); return;
-      }
-      if(low.startsWith('create qr for ')){
-        const v = s.slice('create qr for '.length).trim(); $('#qrText').value=v; makeQR(v); out.textContent = `QR created for: ${v}`; return;
-      }
-      if(low.startsWith('make a diwali wish card for ')){
-        const name = s.split('for ')[1]||'you';
-        const msg = `Wishing you boundless light, health, and momentum. ${name}, may your next 365 days glow with wins.`;
-        drawWishCard(msg); out.textContent = `Wish card generated for ${name}. Click ‘Save Card’.`; speak(`Happy Diwali, ${name}!`);
-        saveCurrentWish(name, msg); return;
-      }
-      if(low === 'clear canvas'){ clearCanvas(); out.textContent = 'Canvas cleared.'; return; }
-
-      out.textContent = s; fireworks();
-    }
-    $('#runBtn').onclick = ()=> runCommand(cmd.value);
-
-    // Mic
-    let rec; $('#micBtn').onclick = ()=>{
-      if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){
-        alert('Speech Recognition not supported in this browser'); return;
-      }
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition; rec = new SR();
-      rec.lang='en-IN'; rec.interimResults=false; rec.maxAlternatives=1;
-      rec.onresult=(e)=>{ const text = e.results[0][0].transcript; cmd.value=text; runCommand(text); };
-      rec.onstart=()=>{ $('#micBtn').textContent='🎙️ Listening…'; };
-      rec.onend =()=>{ $('#micBtn').textContent='🎤 Start'; };
-      rec.start();
-    };
-
-    // Buttons
-    $('#copyBtn').onclick = ()=>{ navigator.clipboard.writeText(out.textContent||''); addLog('Output copied'); };
-    $('#speakBtn').onclick = ()=> speak(out.textContent||'');
-    $('#qrBtn').onclick = ()=> makeQR($('#qrText').value||'Hello, world');
-    $('#saveImgBtn').onclick = ()=>{
-      const a = document.createElement('a'); a.download='diwali-card.png'; a.href = canvas.toDataURL('image/png'); a.click(); addLog('Card saved');
-    };
-    $('#shareBtn').onclick = async ()=>{
-      const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
-      if(navigator.share && blob){
-        const file = new File([blob],'diwali-card.png',{type:'image/png'});
-        try{ await navigator.share({title:'Diwali Card', files:[file], text:'Happy Diwali!'}); addLog('Shared via Web Share API'); }
-        catch(e){ addLog('Share cancelled'); }
-      } else { addLog('Web Share API not supported'); }
-    };
-    document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{ cmd.value=p.textContent; runCommand(p.textContent); }));
-
-    // Init
-    renderTasks(); fireworks();
-
-    async function addTaskSmart(v){
-      try{
-        const ok = await window.jarvisSaveTask(v);
-        if(ok){ addLog(`Task saved to DB: ${v}`); }
-        else { throw new Error('DB save failed'); }
-      }catch(e){
-        const list = loadTasksLocal(); list.unshift({text:v, ts:Date.now()}); saveTasksLocal(list);
-        addLog(`Task saved locally: ${v}`);
-      }
-      $('#taskIn').value=''; renderTasks(); out.textContent = `Task added: ${v}`;
-    }
-    async function saveCurrentWish(name, msg){
-      try{
-        const dataUrl = canvas.toDataURL('image/png');
-        const ok = await window.jarvisSaveWish(name, msg, dataUrl);
-        if(ok) addLog(`Wish saved to DB for ${name}`);
-        else addLog('Saved card locally only (not signed in)');
-      }catch(e){ addLog('Saved card locally only (not signed in)'); }
-    }
-  </script>
-
-  <!-- Supabase wiring (client-only, safe for anon key) -->
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-    const SUPABASE_URL  = 'https://tqkixrssdwucgmgubbpm.supabase.co';
-    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxa2l4cnNzZHd1Y2dtZ3ViYnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4NDkwMzgsImV4cCI6MjA3NjQyNTAzOH0.rcCNkdNhpvX34Dwg105QZ-BeaJ1oy2Wvp4MhY6akwcA';
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
-
-    // Global sign-in / sign-out (used by inline onclick)
-    window.jarvisSignIn = async () => {
-      try {
-        const emailInput = document.getElementById('email');
-        const email = (emailInput?.value || '').trim();
-        if (!email) return alert('Enter an email first!');
-        const { error } = await supabase.auth.signInWithOtp({ email });
-        alert(error ? `Sign-in error: ${error.message}` : 'Magic link sent! Check your inbox.');
-      } catch (e) {
-        alert(`Sign-in failed: ${e.message}`);
-      }
-    };
-    window.jarvisSignOut = async () => {
-      try {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-        alert('Signed out successfully.');
-        updateStatus();
-      } catch (e) {
-        alert(`Sign-out failed: ${e.message}`);
-      }
-    };
-
-    // Save helpers
-    window.jarvisSaveTask = async (text) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return false;
-      const { error } = await supabase.from('tasks').insert({ user_id: user.id, text });
-      if (error) console.error(error);
-      return !error;
-    };
-    window.jarvisSaveWish = async (name, message, image_data_url = null) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return false;
-      const { error } = await supabase.from('wishes').insert({ user_id: user.id, name, message, image_data_url });
-      if (error) console.error(error);
-      return !error;
-    };
-
-    // Auth status label
-    async function updateStatus() {
-      const s = document.getElementById('authStatus');
-      if (!s) return;
-      const { data: { user } } = await supabase.auth.getUser();
-      s.textContent = user ? 'Signed in ✅' : 'Not signed in ❌';
-    }
-    updateStatus();
-    supabase.auth.onAuthStateChange(() => updateStatus());
-  </script>
+  // Load recent messages on open
+  (async ()=>{
+    const { data:{ user } } = await supabase.auth.getUser();
+    if(!user) return;
+    const { data, error } = await supabase.from('messages')
+      .select('text,audio_url,created_at').order('created_at',{ascending:false}).limit(10);
+    if(!error && data){ data.forEach(m=>window.prependMessageRow?.({text:m.text, audio_url:m.audio_url, ts:m.created_at})); }
+  })();
+</script>
 </body>
 </html>
