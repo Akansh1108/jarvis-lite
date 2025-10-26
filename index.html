@@ -1,478 +1,156 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Automation OS — Sign In</title>
-<meta name="theme-color" content="#0a0f1c" />
-<style>
-  :root{--bg:#050914;--panel:#0b1222;--ink:#e6eefc;--muted:#94a3b8;--brand:#6ee7ff;--accent:#7c3aed;--edge:#1e293b}
-  *{box-sizing:border-box}
-  html,body{margin:0;height:100%;background:linear-gradient(180deg,#050914,#0a1020);color:var(--ink);font:15px/1.4 system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial}
-  a{color:var(--brand);text-decoration:none}
-  .wrap{max-width:1120px;margin:0 auto;padding:24px}
-  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-  .logo{display:flex;gap:12px;align-items:center}
-  .orb{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#7df,#58a 60%,#1b2b4a 100%);box-shadow:0 0 24px #07f6}
-  .btn{background:linear-gradient(135deg,#14213a,#0b1222);border:1px solid var(--edge);color:#eaf2ff;padding:10px 14px;border-radius:10px;cursor:pointer}
-  .btn:hover{border-color:#334155;transform:translateY(-1px)}
-  .btn.brand{background:linear-gradient(135deg,#0ea5e9,#7c3aed);border:none}
-  .muted{color:var(--muted)}
-  .panel{background:rgba(15,23,42,.6);border:1px solid var(--edge);border-radius:16px;padding:16px}
-  input{width:100%;background:#0b1222;border:1px solid #25324a;color:#eaf2ff;padding:10px 12px;border-radius:10px}
-  label{display:block;margin:8px 0 6px;color:#cbd5e1}
-  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
-  .hidden{display:none!important}
-  /* Landing hero */
-  .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:start}
-  @media(max-width:920px){.hero{grid-template-columns:1fr}}
-  .heroCard{padding:24px;border-radius:16px;background:
-    radial-gradient(1200px 200px at 10% -10%,rgba(124,58,237,.18),transparent 60%),
-    radial-gradient(1000px 250px at 110% -20%,rgba(14,165,233,.15),transparent 60%),
-    linear-gradient(180deg,#091227,#0a1020);border:1px solid var(--edge)}
-  .title{font-size:28px;margin:4px 0 8px}
-  .subtitle{color:var(--muted)}
-  .kpi{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-  .bubble{background:#0b1222;border:1px solid var(--edge);border-radius:12px;padding:10px 12px}
-  /* App shell */
-  .app{display:grid;grid-template-columns:260px 1fr;gap:16px}
-  @media(max-width:920px){.app{grid-template-columns:1fr}}
-  .sidebar{position:sticky;top:16px;height:calc(100vh - 64px)}
-  .nav a{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;border:1px solid transparent;color:#e2e8f0}
-  .nav a.active,.nav a:hover{background:#0b1222;border-color:#25324a}
-  .content{min-height:60vh}
-  .row{display:flex;gap:10px;flex-wrap:wrap}
-  .pill{padding:6px 10px;border:1px solid var(--edge);border-radius:999px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automation OS – Sign In</title>
+  <style>
+    body { margin:0; font-family:system-ui, -apple-system, 'Segoe UI', Inter, Roboto, sans-serif;
+           background:linear-gradient(180deg,#050914,#0a1020); color:#e6eefc; }
+    .container { max-width:900px; margin:0 auto; padding:30px; }
+    .panel { background:rgba(15,23,42,.8); border:1px solid #1e293b; border-radius:16px; padding:24px; }
+    input,button { width:100%; padding:10px; margin:6px 0; border-radius:8px; border:1px solid #25324a; font-size:15px; }
+    input { background:#0b1222; color:#e6eefc; }
+    button { background:linear-gradient(135deg,#0ea5e9,#7c3aed); color:#fff; border:none; cursor:pointer; }
+    button:hover { opacity:0.9; }
+    .hidden{display:none;}
+    h1{font-size:26px;margin-bottom:6px;}
+    h3{margin-top:0;}
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="logo"><div class="orb" aria-hidden="true"></div><strong>Automation OS</strong></div>
-    <div class="row">
-      <button id="toAppBtn" class="btn hidden">Open Console</button>
-      <button id="signOutBtn" class="btn hidden">Sign Out</button>
-    </div>
-  </header>
+  <div class="container">
+    <h1>Welcome to your Automation Command Center</h1>
+    <p>Sign in or create your account to access your dashboard.</p>
 
-  <!-- ========== LANDING PAGE ========== -->
-  <section id="landing">
-    <div class="hero">
-      <div class="heroCard">
-        <div class="title">Welcome to your <strong>Automation Command Center</strong></div>
-        <p class="subtitle">Buy templates, deploy AI automations, scale across teams. Sign in to begin.</p>
-        <div class="kpi">
-          <div class="bubble">Templates: <strong>120+</strong></div>
-          <div class="bubble">Integrations: <strong>50+</strong></div>
-          <div class="bubble">Avg setup time: <strong>&lt; 3 min</strong></div>
-        </div>
-      </div>
+    <div class="panel">
+      <div id="auth">
+        <button id="tabSignIn">Sign In</button>
+        <button id="tabSignUp">Sign Up</button>
 
-      <div class="panel">
-        <h3 style="margin:0 0 8px">Sign in / Create account</h3>
-        <p class="muted" style="margin:0 0 10px">Choose email & password or continue with Google.</p>
-
-        <!-- Tabs -->
-        <div class="row" style="margin-bottom:10px">
-          <button id="tabSignIn" class="btn brand">Sign in</button>
-          <button id="tabSignUp" class="btn">Create account</button>
-        </div>
-
-        <!-- Sign In form -->
         <form id="signInForm">
-          <label for="siEmail">Email</label>
-          <input id="siEmail" type="email" placeholder="you@company.com" autocomplete="email" required />
-          <label for="siPass">Password</label>
-          <input id="siPass" type="password" placeholder="••••••••" autocomplete="current-password" required />
-          <div class="row" style="margin-top:12px">
-            <button type="submit" class="btn brand">Sign in</button>
-            <button id="googleIn" type="button" class="btn">Continue with Google</button>
-            <button id="resetPass" type="button" class="btn">Forgot password</button>
-          </div>
+          <input id="siEmail" type="email" placeholder="Email" required />
+          <input id="siPass" type="password" placeholder="Password" required />
+          <button type="submit">Sign In</button>
+          <button type="button" id="googleIn">Continue with Google</button>
         </form>
 
-        <!-- Sign Up form -->
-        <form id="signUpForm" class="hidden" autocomplete="on">
-          <label for="suName">Name</label>
-          <input id="suName" type="text" placeholder="Your name" autocomplete="name" required />
-          <label for="suEmail">Email</label>
-          <input id="suEmail" type="email" placeholder="you@company.com" autocomplete="email" required />
-          <label for="suPass">Password</label>
-          <input id="suPass" type="password" placeholder="At least 6 characters" autocomplete="new-password" required />
-          <div class="row" style="margin-top:12px">
-            <button type="submit" class="btn brand">Create account</button>
-            <button id="googleUp" type="button" class="btn">Sign up with Google</button>
-          </div>
+        <form id="signUpForm" class="hidden">
+          <input id="suName" type="text" placeholder="Full Name" required />
+          <input id="suEmail" type="email" placeholder="Email" required />
+          <input id="suPass" type="password" placeholder="Password" required />
+          <button type="submit">Create Account</button>
+          <button type="button" id="googleUp">Sign up with Google</button>
         </form>
 
-        <p id="authMsg" class="muted" style="margin-top:10px"></p>
+        <p id="authMsg"></p>
+      </div>
+
+      <div id="app" class="hidden">
+        <h3>Dashboard</h3>
+        <p id="welcome"></p>
+        <button id="signOutBtn">Sign Out</button>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ========== APP SHELL ========== -->
-  <section id="app" class="app hidden" aria-live="polite">
-    <aside class="sidebar panel">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div class="orb" style="width:28px;height:28px"></div>
-        <div>
-          <div id="helloName" style="font-weight:600">Hello</div>
-          <div id="helloEmail" class="muted" style="font-size:12px">—</div>
-        </div>
-      </div>
-      <nav class="nav" id="nav">
-        <a href="#/dashboard" data-route="dashboard" class="active">📊 Dashboard</a>
-        <a href="#/settings" data-route="settings">⚙️ Settings</a>
-        <a href="#/profile" data-route="profile">👤 Profile</a>
-      </nav>
-      <div style="margin-top:12px">
-        <span id="planTag" class="pill">Plan: Free</span>
-      </div>
-      <div style="margin-top:12px">
-        <button id="goBilling" class="btn" style="width:100%">Upgrade</button>
-      </div>
-    </aside>
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2.46.1/dist/umd/supabase.js" crossorigin="anonymous"></script>
+  <script>
+  // ====== CONFIG ======
+  const SUPABASE_URL = "https://tqkixrssdwucgmgubbpm.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxa2l4cnNzZHd1Y2dtZ3ViYnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4NDkwMzgsImV4cCI6MjA3NjQyNTAzOH0.rcCNkdNhpvX34Dwg105QZ-BeaJ1oy2Wvp4MhY6akwcA";
 
-    <main class="content">
-      <!-- DASHBOARD -->
-      <div id="view-dashboard" class="panel">
-        <h3 style="margin-top:0">Dashboard</h3>
-        <p class="muted">Quick stats for your automations.</p>
-        <div class="grid" style="grid-template-columns:repeat(12,1fr);gap:12px">
-          <div class="panel" style="grid-column:span 4">
-            <div>Active automations</div>
-            <div id="kpiActive" style="font-size:28px;margin-top:6px">0</div>
-          </div>
-          <div class="panel" style="grid-column:span 4">
-            <div>Success rate (24h)</div>
-            <div id="kpiSR" style="font-size:28px;margin-top:6px">–</div>
-          </div>
-          <div class="panel" style="grid-column:span 4">
-            <div>Tokens used (24h)</div>
-            <div id="kpiTok" style="font-size:28px;margin-top:6px">–</div>
-          </div>
-        </div>
-      </div>
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, flowType: "pkce" } });
 
-      <!-- SETTINGS -->
-      <div id="view-settings" class="panel hidden">
-        <h3 style="margin-top:0">Settings</h3>
-        <p class="muted">Manage plan and security.</p>
-        <div class="row" style="margin-top:8px">
-          <button id="sendPwdReset" class="btn">Send password reset email</button>
-          <button id="rotateSession" class="btn">Refresh session</button>
-        </div>
-      </div>
+  // ====== ELEMENTS ======
+  const tabSignIn = document.getElementById('tabSignIn');
+  const tabSignUp = document.getElementById('tabSignUp');
+  const signInForm = document.getElementById('signInForm');
+  const signUpForm = document.getElementById('signUpForm');
+  const googleIn = document.getElementById('googleIn');
+  const googleUp = document.getElementById('googleUp');
+  const signOutBtn = document.getElementById('signOutBtn');
+  const authMsg = document.getElementById('authMsg');
+  const app = document.getElementById('app');
+  const auth = document.getElementById('auth');
+  const welcome = document.getElementById('welcome');
 
-      <!-- PROFILE -->
-      <div id="view-profile" class="panel hidden">
-        <h3 style="margin-top:0">Profile</h3>
-        <form id="profileForm" style="max-width:520px">
-          <label for="pfName">Name</label>
-          <input id="pfName" type="text" required />
-          <label for="pfEmail">Email (read-only)</label>
-          <input id="pfEmail" type="email" disabled />
-          <div class="row" style="margin-top:12px">
-            <button type="submit" class="btn brand">Save</button>
-          </div>
-        </form>
-      </div>
-    </main>
-  </section>
-</div>
+  // ====== TAB SWITCH ======
+  tabSignIn.onclick = () => { signInForm.classList.remove('hidden'); signUpForm.classList.add('hidden'); authMsg.textContent=''; };
+  tabSignUp.onclick = () => { signUpForm.classList.remove('hidden'); signInForm.classList.add('hidden'); authMsg.textContent=''; };
 
-<!-- Supabase JS -->
-<script src="https://unpkg.com/@supabase/supabase-js@2.46.1/dist/umd/supabase.js" crossorigin="anonymous"></script>
-<script>
-/* ====== CONFIG (YOUR LIVE VALUES) ====== */
-const SUPABASE_URL = "https://tqkixrssdwucgmgubbpm.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxa2l4cnNzZHd1Y2dtZ3ViYnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjA4NDkwMzgsImV4cCI6MjA3NjQyNTAzOH0.rcCNkdNhpvX34Dwg105QZ-BeaJ1oy2Wvp4MhY6akwcA";
-
-/* ====== Sanity checks (helps debug “unable to fetch”) ====== */
-(function sanity(){
-  if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL)) {
-    console.error("Supabase URL looks wrong:", SUPABASE_URL);
-    alert("Config error: SUPABASE_URL is invalid. Copy it exactly from Supabase (Settings → API).");
-  }
-  if (!(SUPABASE_ANON_KEY || "").startsWith("ey")) {
-    console.warn("Anon key may be missing/invalid.");
-  }
-})();
-
-/* ====== Supabase client ====== */
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true, flowType: "pkce" }
-});
-
-/* ====== ELEMENTS ====== */
-const landing = document.getElementById('landing');
-const app = document.getElementById('app');
-const toAppBtn = document.getElementById('toAppBtn');
-const signOutBtn = document.getElementById('signOutBtn');
-const authMsg = document.getElementById('authMsg');
-const planTag = document.getElementById('planTag');
-
-const tabSignIn = document.getElementById('tabSignIn');
-const tabSignUp = document.getElementById('tabSignUp');
-const signInForm = document.getElementById('signInForm');
-const signUpForm = document.getElementById('signUpForm');
-
-const siEmail = document.getElementById('siEmail');
-const siPass = document.getElementById('siPass');
-const suName = document.getElementById('suName');
-const suEmail = document.getElementById('suEmail');
-const suPass = document.getElementById('suPass');
-
-const googleIn = document.getElementById('googleIn');
-const googleUp = document.getElementById('googleUp');
-const resetPass = document.getElementById('resetPass');
-
-const helloName = document.getElementById('helloName');
-const helloEmail = document.getElementById('helloEmail');
-const nav = document.getElementById('nav');
-
-const viewDashboard = document.getElementById('view-dashboard');
-const viewSettings = document.getElementById('view-settings');
-const viewProfile = document.getElementById('view-profile');
-
-const kpiActive = document.getElementById('kpiActive');
-const kpiSR = document.getElementById('kpiSR');
-const kpiTok = document.getElementById('kpiTok');
-
-const profileForm = document.getElementById('profileForm');
-const pfName = document.getElementById('pfName');
-const pfEmail = document.getElementById('pfEmail');
-
-const goBilling = document.getElementById('goBilling');
-
-let sessionUser = null;
-let currentPlan = 'Free';
-
-/* ====== VIEW HELPERS ====== */
-function showLanding(){ landing.classList.remove('hidden'); app.classList.add('hidden'); toAppBtn.classList.add('hidden'); signOutBtn.classList.add('hidden'); }
-function showApp(){ landing.classList.add('hidden'); app.classList.remove('hidden'); toAppBtn.classList.add('hidden'); signOutBtn.classList.remove('hidden'); }
-
-function setRoute(route){
-  document.querySelectorAll('.nav a').forEach(a=>{
-    a.classList.toggle('active', a.dataset.route === route);
-  });
-  [viewDashboard, viewSettings, viewProfile].forEach(v => v.classList.add('hidden'));
-  if(route==='dashboard') viewDashboard.classList.remove('hidden');
-  if(route==='settings') viewSettings.classList.remove('hidden');
-  if(route==='profile') viewProfile.classList.remove('hidden');
-}
-
-window.addEventListener('hashchange', () => {
-  const route = window.location.hash.replace('#/','') || 'dashboard';
-  setRoute(route);
-});
-
-/* ====== AUTH: SIGN UP / SIGN IN ====== */
-tabSignIn.addEventListener('click', ()=>{
-  tabSignIn.classList.add('brand'); tabSignUp.classList.remove('brand');
-  signInForm.classList.remove('hidden'); signUpForm.classList.add('hidden'); authMsg.textContent='';
-});
-tabSignUp.addEventListener('click', ()=>{
-  tabSignUp.classList.add('brand'); tabSignIn.classList.remove('brand');
-  signUpForm.classList.remove('hidden'); signInForm.classList.add('hidden'); authMsg.textContent='';
-});
-
-signUpForm.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  authMsg.textContent = "Creating account…";
-  try{
+  // ====== SIGN UP ======
+  signUpForm.onsubmit = async (e) => {
+    e.preventDefault();
+    authMsg.textContent = "Creating account…";
     const { data, error } = await sb.auth.signUp({
       email: suEmail.value.trim(),
       password: suPass.value
     });
-    if(error) throw error;
+    if (error) authMsg.textContent = error.message;
+    else if (!data.session) authMsg.textContent = "Check your email to confirm, then sign in.";
+    else authMsg.textContent = "Account created. Redirecting...";
+  };
 
-    if (!data.session) {
-      authMsg.textContent = "Account created. Check your email to confirm, then sign in.";
-    } else {
-      authMsg.textContent = "Account created. Signing you in…";
-    }
-  }catch(err){
-    handleSupabaseError("SignUp", err);
-  }
-});
-
-signInForm.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  authMsg.textContent = "Signing in…";
-  try{
+  // ====== SIGN IN ======
+  signInForm.onsubmit = async (e) => {
+    e.preventDefault();
+    authMsg.textContent = "Signing in…";
     const { data, error } = await sb.auth.signInWithPassword({
       email: siEmail.value.trim(),
       password: siPass.value
     });
-    if(error) throw error;
-    authMsg.textContent = "Signed in.";
-  }catch(err){
-    handleSupabaseError("SignIn", err);
-  }
-});
+    if (error) authMsg.textContent = error.message;
+    else authMsg.textContent = "Welcome back!";
+  };
 
-googleIn.addEventListener('click', async ()=>{
-  await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: window.location.origin }});
-});
-googleUp.addEventListener('click', async ()=>{
-  await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: window.location.origin }});
-});
+  // ====== GOOGLE OAUTH ======
+  googleIn.onclick = googleUp.onclick = async () => {
+    await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+  };
 
-resetPass.addEventListener('click', async ()=>{
-  const email = siEmail.value.trim();
-  if(!email){ authMsg.textContent="Enter your email first."; return; }
-  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/#reset' });
-  authMsg.textContent = error ? ("Error: " + error.message) : "Reset link sent. Check your email.";
-});
-
-/* ====== SESSION & PROFILE ====== */
-sb.auth.onAuthStateChange(async (_evt, session) => {
-  sessionUser = session?.user ?? null;
-  if(sessionUser){
-    try{
-      // Upsert profile AFTER session exists (RLS-safe)
-      const user = sessionUser;
-      const name =
-        document.getElementById('suName')?.value?.trim() ||
-        user.user_metadata?.name ||
-        user.email?.split("@")[0] || "User";
-
-      const { error: upErr } = await sb.from('profiles')
-        .upsert({ id: user.id, name, email: user.email, plan:'Free' });
-      if (upErr) console.warn("Profile upsert failed:", upErr.message);
-
-      await bootAfterAuth();
-    }catch(e){
-      handleSupabaseError("ProfileUpsert", e);
+  // ====== SESSION HANDLER ======
+  sb.auth.onAuthStateChange(async (_evt, session) => {
+    if (session?.user) {
+      const u = session.user;
+      app.classList.remove('hidden');
+      auth.classList.add('hidden');
+      welcome.textContent = `Hello, ${u.email}!`;
+    } else {
+      app.classList.add('hidden');
+      auth.classList.remove('hidden');
     }
-  }else{
-    showLanding();
-  }
-});
+  });
 
-async function bootAfterAuth(){
-  // Load profile (and create if missing for OAuth users)
-  const uid = sessionUser.id;
-  let { data: prof, error } = await sb.from('profiles').select('name,email,plan').eq('id', uid).maybeSingle();
-  if(error){ console.warn(error); }
-  if(!prof){
-    const email = sessionUser.email || '';
-    await sb.from('profiles').upsert({ id: uid, name: sessionUser.user_metadata?.name || 'User', email, plan:'Free' });
-    prof = { name: sessionUser.user_metadata?.name || 'User', email, plan:'Free' };
-  }
+  signOutBtn.onclick = async () => { await sb.auth.signOut(); };
 
-  currentPlan = prof.plan || 'Free';
-  planTag.textContent = "Plan: " + currentPlan;
+  // ====== INITIAL BOOT ======
+  (async () => {
+    try {
+      const r = await fetch(SUPABASE_URL + "/auth/v1/health");
+      if (!r.ok && r.status !== 401) console.warn("⚠️ Health endpoint returned:", r.status);
+      const { data: { session } } = await sb.auth.getSession();
+      if (session?.user) {
+        app.classList.remove('hidden');
+        auth.classList.add('hidden');
+        welcome.textContent = `Hello, ${session.user.email}!`;
+      }
+    } catch (err) { console.warn(err); }
+  })();
+  </script>
 
-  toAppBtn.classList.add('hidden');
-  signOutBtn.classList.remove('hidden');
-
-  helloName.textContent = prof.name || 'User';
-  helloEmail.textContent = prof.email || (sessionUser.email ?? '—');
-
-  // Fake KPIs (replace with your analytics)
-  kpiActive.textContent = Math.floor(Math.random()*4);
-  kpiSR.textContent = (90 + Math.floor(Math.random()*9)) + "%";
-  kpiTok.textContent = (50 + Math.floor(Math.random()*200)) + "k";
-
-  pfName.value = prof.name || '';
-  pfEmail.value = prof.email || (sessionUser.email ?? '');
-
-  showApp();
-  setRoute((location.hash.replace('#/','')) || 'dashboard');
-}
-
-signOutBtn.addEventListener('click', async ()=>{
-  await sb.auth.signOut();
-  sessionUser = null;
-  showLanding();
-});
-
-/* ====== PROFILE / SETTINGS ====== */
-document.getElementById('profileForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  if(!sessionUser) return;
-  const name = pfName.value.trim();
-  const { error } = await sb.from('profiles').update({ name }).eq('id', sessionUser.id);
-  alert(error ? ("Update failed: " + error.message) : "Profile updated.");
-});
-
-document.getElementById('sendPwdReset').addEventListener('click', async ()=>{
-  if(!sessionUser?.email){ alert("No email on file."); return; }
-  const { error } = await sb.auth.resetPasswordForEmail(sessionUser.email, { redirectTo: window.location.origin + "/#/reset" });
-  alert(error ? ("Error: " + error.message) : "Reset link sent to " + sessionUser.email);
-});
-
-document.getElementById('rotateSession').addEventListener('click', async ()=>{
-  const { data, error } = await sb.auth.refreshSession();
-  alert(error ? ("Session refresh failed: " + error.message) : "Session refreshed.");
-});
-
-goBilling.addEventListener('click', ()=>{
-  // Replace with your Stripe Checkout route
-  window.location.href = "/billing";
-});
-
-/* ====== Error helper ====== */
-function handleSupabaseError(ctx, err) {
-  if (err?.message?.toLowerCase?.().includes("fetch") || err?.name === "TypeError") {
-    console.error(`[${ctx}] Network/CORS issue:`, err);
-    authMsg.textContent =
-      "Network error: couldn’t reach Supabase. Check URL Configuration (Site URL & Redirects) and try again.";
-    return;
-  }
-  console.error(`[${ctx}]`, err);
-  authMsg.textContent = `Error (${ctx}): ${err?.message || "Unknown error"}`;
-}
-
-/* ====== INITIAL BOOT ====== */
-(async function boot(){
-  try{
-    const ok = await fetch(SUPABASE_URL + "/auth/v1/health").then(r=>r.ok).catch(()=>false);
-    if(!ok) console.warn("Auth health check failed — verify Supabase URL & project is online.");
-  }catch(_e){}
-  const { data:{session} } = await sb.auth.getSession();
-  sessionUser = session?.user ?? null;
-  if(sessionUser){ await bootAfterAuth(); } else { showLanding(); }
-})();
-</script>
-
-<!--
-────────────────────────────────────────────────────────────────────────
-Supabase SQL — run in Supabase SQL editor
-
--- Public profiles (store email + name + plan; DO NOT store plaintext passwords)
-create table if not exists public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
-  email text,
-  name text,
-  plan text not null default 'Free',
-  updated_at timestamp with time zone default now()
-);
-alter table public.profiles enable row level security;
-create policy "read own profile" on public.profiles for select using (auth.uid() = id);
-create policy "insert own profile" on public.profiles for insert with check (auth.uid() = id);
-create policy "update own profile" on public.profiles for update using (auth.uid() = id);
-
--- Optional: runs table for usage tracking
-create table if not exists public.runs (
-  id bigserial primary key,
-  user_id uuid references auth.users(id) on delete cascade,
-  template_id text,
-  status integer,
-  meta jsonb,
-  created_at timestamp with time zone default now()
-);
-alter table public.runs enable row level security;
-create policy "read own runs" on public.runs for select using (auth.uid() = user_id);
-create policy "insert own runs" on public.runs for insert with check (auth.uid() = user_id);
-
-Notes:
-• Turn ON Authentication → Providers → Email signups.
-• If email confirmation is ON, set Authentication → URL Configuration → Site URL to your Vercel domain and add it to Additional Redirect URLs (plus localhost for dev).
-• Enable Google OAuth if you’re using the Google buttons and add the same redirect URIs in Google Cloud Console.
-────────────────────────────────────────────────────────────────────────
--->
+  <!--
+  ✅ To verify Supabase configuration:
+  1. Dashboard → Settings → API → copy Project URL & anon public key
+  2. Authentication → Providers → Email (enable)
+  3. Authentication → URL Configuration → Site URL = your Vercel domain
+     Add Additional Redirect URLs: https://*.vercel.app, http://localhost:3000
+  4. Enable Google OAuth provider, add callback:
+     https://tqkixrssdwucgmgubbpm.supabase.co/auth/v1/callback
+  -->
 </body>
 </html>
