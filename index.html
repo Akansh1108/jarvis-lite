@@ -184,19 +184,27 @@
 <!-- Supabase JS -->
 <script src="https://unpkg.com/@supabase/supabase-js@2.46.1/dist/umd/supabase.js" crossorigin="anonymous"></script>
 <script>
-/* =========================
-   CONFIG (replace these)
-   ========================= */
-const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";   // ← replace
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";           // ← replace
+/* ====== CONFIG (YOUR LIVE VALUES) ====== */
+const SUPABASE_URL = "https://tqkixrssdwucgmgubbpm.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxa2l4cnNzZHd1Y2dtZ3ViYnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjA4NDkwMzgsImV4cCI6MjA3NjQyNTAzOH0.rcCNkdNhpvX34Dwg105QZ-BeaJ1oy2Wvp4MhY6akwcA";
 
+/* ====== Sanity checks (helps debug “unable to fetch”) ====== */
+(function sanity(){
+  if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL)) {
+    console.error("Supabase URL looks wrong:", SUPABASE_URL);
+    alert("Config error: SUPABASE_URL is invalid. Copy it exactly from Supabase (Settings → API).");
+  }
+  if (!(SUPABASE_ANON_KEY || "").startsWith("ey")) {
+    console.warn("Anon key may be missing/invalid.");
+  }
+})();
+
+/* ====== Supabase client ====== */
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: true, flowType: "pkce" }
 });
 
-/* =========================
-   ELEMENTS
-   ========================= */
+/* ====== ELEMENTS ====== */
 const landing = document.getElementById('landing');
 const app = document.getElementById('app');
 const toAppBtn = document.getElementById('toAppBtn');
@@ -240,9 +248,7 @@ const goBilling = document.getElementById('goBilling');
 let sessionUser = null;
 let currentPlan = 'Free';
 
-/* =========================
-   VIEW HELPERS
-   ========================= */
+/* ====== VIEW HELPERS ====== */
 function showLanding(){ landing.classList.remove('hidden'); app.classList.add('hidden'); toAppBtn.classList.add('hidden'); signOutBtn.classList.add('hidden'); }
 function showApp(){ landing.classList.add('hidden'); app.classList.remove('hidden'); toAppBtn.classList.add('hidden'); signOutBtn.classList.remove('hidden'); }
 
@@ -261,9 +267,7 @@ window.addEventListener('hashchange', () => {
   setRoute(route);
 });
 
-/* =========================
-   AUTH: SIGN UP / SIGN IN
-   ========================= */
+/* ====== AUTH: SIGN UP / SIGN IN ====== */
 tabSignIn.addEventListener('click', ()=>{
   tabSignIn.classList.add('brand'); tabSignUp.classList.remove('brand');
   signInForm.classList.remove('hidden'); signUpForm.classList.add('hidden'); authMsg.textContent='';
@@ -276,23 +280,20 @@ tabSignUp.addEventListener('click', ()=>{
 signUpForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
   authMsg.textContent = "Creating account…";
-  const name = suName.value.trim();
-  const email = suEmail.value.trim();
-  const password = suPass.value;
-
   try{
-    const { data, error } = await sb.auth.signUp({ email, password });
+    const { data, error } = await sb.auth.signUp({
+      email: suEmail.value.trim(),
+      password: suPass.value
+    });
     if(error) throw error;
 
-    // Upsert profile (store name + email; password is managed securely by Supabase Auth)
-    const userId = data.user?.id;
-    if(userId){
-      await sb.from('profiles').upsert({ id: userId, name, email, plan: 'Free' });
+    if (!data.session) {
+      authMsg.textContent = "Account created. Check your email to confirm, then sign in.";
+    } else {
+      authMsg.textContent = "Account created. Signing you in…";
     }
-
-    authMsg.textContent = "Account created. Check your inbox to confirm (if email confirm is on).";
   }catch(err){
-    authMsg.textContent = "Error: " + err.message;
+    handleSupabaseError("SignUp", err);
   }
 });
 
@@ -300,12 +301,14 @@ signInForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
   authMsg.textContent = "Signing in…";
   try{
-    const { data, error } = await sb.auth.signInWithPassword({ email: siEmail.value.trim(), password: siPass.value });
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: siEmail.value.trim(),
+      password: siPass.value
+    });
     if(error) throw error;
-    authMsg.textContent = "Signed in. Opening console…";
-    await bootAfterAuth();
+    authMsg.textContent = "Signed in.";
   }catch(err){
-    authMsg.textContent = "Error: " + err.message;
+    handleSupabaseError("SignIn", err);
   }
 });
 
@@ -323,13 +326,26 @@ resetPass.addEventListener('click', async ()=>{
   authMsg.textContent = error ? ("Error: " + error.message) : "Reset link sent. Check your email.";
 });
 
-/* =========================
-   SESSION & PROFILE
-   ========================= */
+/* ====== SESSION & PROFILE ====== */
 sb.auth.onAuthStateChange(async (_evt, session) => {
   sessionUser = session?.user ?? null;
   if(sessionUser){
-    await bootAfterAuth();
+    try{
+      // Upsert profile AFTER session exists (RLS-safe)
+      const user = sessionUser;
+      const name =
+        document.getElementById('suName')?.value?.trim() ||
+        user.user_metadata?.name ||
+        user.email?.split("@")[0] || "User";
+
+      const { error: upErr } = await sb.from('profiles')
+        .upsert({ id: user.id, name, email: user.email, plan:'Free' });
+      if (upErr) console.warn("Profile upsert failed:", upErr.message);
+
+      await bootAfterAuth();
+    }catch(e){
+      handleSupabaseError("ProfileUpsert", e);
+    }
   }else{
     showLanding();
   }
@@ -349,20 +365,17 @@ async function bootAfterAuth(){
   currentPlan = prof.plan || 'Free';
   planTag.textContent = "Plan: " + currentPlan;
 
-  // Header buttons
   toAppBtn.classList.add('hidden');
   signOutBtn.classList.remove('hidden');
 
-  // Fill sidebar header
   helloName.textContent = prof.name || 'User';
   helloEmail.textContent = prof.email || (sessionUser.email ?? '—');
 
-  // Fake KPIs (stub your analytics later)
+  // Fake KPIs (replace with your analytics)
   kpiActive.textContent = Math.floor(Math.random()*4);
   kpiSR.textContent = (90 + Math.floor(Math.random()*9)) + "%";
   kpiTok.textContent = (50 + Math.floor(Math.random()*200)) + "k";
 
-  // Prefill profile form
   pfName.value = prof.name || '';
   pfEmail.value = prof.email || (sessionUser.email ?? '');
 
@@ -376,10 +389,8 @@ signOutBtn.addEventListener('click', async ()=>{
   showLanding();
 });
 
-/* =========================
-   PROFILE / SETTINGS
-   ========================= */
-profileForm.addEventListener('submit', async (e)=>{
+/* ====== PROFILE / SETTINGS ====== */
+document.getElementById('profileForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   if(!sessionUser) return;
   const name = pfName.value.trim();
@@ -403,10 +414,24 @@ goBilling.addEventListener('click', ()=>{
   window.location.href = "/billing";
 });
 
-/* =========================
-   INITIAL BOOT
-   ========================= */
+/* ====== Error helper ====== */
+function handleSupabaseError(ctx, err) {
+  if (err?.message?.toLowerCase?.().includes("fetch") || err?.name === "TypeError") {
+    console.error(`[${ctx}] Network/CORS issue:`, err);
+    authMsg.textContent =
+      "Network error: couldn’t reach Supabase. Check URL Configuration (Site URL & Redirects) and try again.";
+    return;
+  }
+  console.error(`[${ctx}]`, err);
+  authMsg.textContent = `Error (${ctx}): ${err?.message || "Unknown error"}`;
+}
+
+/* ====== INITIAL BOOT ====== */
 (async function boot(){
+  try{
+    const ok = await fetch(SUPABASE_URL + "/auth/v1/health").then(r=>r.ok).catch(()=>false);
+    if(!ok) console.warn("Auth health check failed — verify Supabase URL & project is online.");
+  }catch(_e){}
   const { data:{session} } = await sb.auth.getSession();
   sessionUser = session?.user ?? null;
   if(sessionUser){ await bootAfterAuth(); } else { showLanding(); }
@@ -444,9 +469,9 @@ create policy "read own runs" on public.runs for select using (auth.uid() = user
 create policy "insert own runs" on public.runs for insert with check (auth.uid() = user_id);
 
 Notes:
-• Passwords are handled by Supabase Auth (bcrypt). Storing them yourself is a security risk.
-• To “track usage,” join runs.user_id → profiles/id or auth.users/id.
-• Enable Google in Auth → Providers. Set redirect to your Vercel domain.
+• Turn ON Authentication → Providers → Email signups.
+• If email confirmation is ON, set Authentication → URL Configuration → Site URL to your Vercel domain and add it to Additional Redirect URLs (plus localhost for dev).
+• Enable Google OAuth if you’re using the Google buttons and add the same redirect URIs in Google Cloud Console.
 ────────────────────────────────────────────────────────────────────────
 -->
 </body>
